@@ -8,12 +8,13 @@ public class mainClass {
         Properties prop = cargaConfiguracion("config.properties");
         System.out.println("***** Configuración del sistema: ");
         System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
-        configuracionTiempo(2, tareaParaRealizar());
+        configuracionTiempo(Integer.parseInt(prop.getProperty("task.hours")), tareaParaRealizar());
         System.out.println("Terminamos...");
  
     } //Cierre del main
 
     private static void configuracionTiempo(Integer periodoHoras, TimerTask task){
+        //TODO: quitar el comentario para que use las horas que le pasemos como parámetro
         //Integer formatoHoraMiliSegundos = periodoHoras * 86400000;
         Integer formatoHoraMiliSegundos = 1000;
         Timer timer;
@@ -27,6 +28,16 @@ public class mainClass {
             @Override
             public void run()
             {
+                //Aquí debe estar lo que viene siendo las tareas que se realizan cada 24 horas.
+                //Obtención de Hash de ficheros en SHA-256 e introducirlo en el fichero de Hash
+
+                //Cifrado del fichero de Hash con cifrado simétrico (Se supone que el código no lo vería el atacante por tanto puede estar aquí la pass)
+
+                //Obtención de PID del proceso del programa y pasarlo a algún archivo de configuración donde lo recogería un programa en bash para la comprobación y alarma si se para el HIDS
+
+                //Ofuscación de las rutas
+
+
                 System.out.println("Realizando tarea...");
             }
         };
