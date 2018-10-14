@@ -3,3 +3,6 @@
 
 #compilacion de Java:
 *.class
+
+#Fichero de prueba de cifrado
+fichero_cifrado.*
