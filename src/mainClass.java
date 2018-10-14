@@ -3,15 +3,34 @@ import java.util.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class mainClass {
+public class mainClass {System.out.println("------------------------pruebas path de todos los ficheros------------------");
+Map<String, String> test = getRutasAbsolutas();
+System.out.println(test.values());
+System.out.println(test.keySet());
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
+
+
+        File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
+        
+        //Use  algorithm
+		//habria que modificar el atributo aqui a un string , ya que lo lee del archivo .config
+		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
+
+		//Generar hash
+		String hashArchivo = getHashFichero(sha256Digest, file);
+
+		//mostrar hash
+		System.out.println(hashArchivo);
 
         System.out.println ("HIDS v1.0");
         Properties prop = cargaConfiguracion("config.properties");
         System.out.println("***** Configuración del sistema: ");
         System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
-        configuracionTiempo(Integer.parseInt(prop.getProperty("task.hours")), tareaParaRealizar());
+        configuracionTiempo(0, tareaParaRealizar());
         System.out.println("Terminamos...");
+
+
+
         
 		
  
@@ -112,6 +131,67 @@ public class mainClass {
 		//mostrar hash
 		System.out.println(hashArchivo);
     */
+    //método que obtiene la ruta absoluta de un fichero a partid e un nombre y un directorio donde comienza a buscar de manera recursiva
+    private static String  getPathFichero(File dir,String nombreFichero) {
+		String res = "";
+		
+        
+            File[] files = dir.listFiles();
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    //System.out.println("directorio:" + file.getCanonicalPath());
+                    //verContenidoFolder(file);
+                	if(res!="") {
+                		break;
+                	}else {
+                		res = getPathFichero(file,nombreFichero);
+                	}
+                } else {
+                    if(file.getName().equals(nombreFichero)) {
+                    	//System.out.println("entro aquí");
+                    	res = file.getAbsolutePath();
+                    	break;
+                    }  
+                }
+            }
+        
+        return res;
+    } 
+    
+    
+    
+    //Metodo que devuelve un map que relaciona key = nombrefichero con value= ruta absoluta, devuelve dicho map
+    private static Map<String,String> getRutasAbsolutas() throws FileNotFoundException, IOException{
+		Map<String, String> map = new HashMap<String, String>();
+        Properties p = new Properties();
+        //lee el archivo config.properties
+		p.load(new FileReader("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/config.properties"));
+
+		//System.out.println(p.getProperty("LISTFICHEROS"));
+		String res1[] =  p.getProperty("LISTFICHEROS").split(",");
+		for(int i=0;i<res1.length;i++) {
+			String ruta = getPathFichero(new File("/"), res1[i]);
+			if(!ruta.equals("")) {
+				map.put(res1[i],getPathFichero(new File("/"), res1[i]));
+			}
+		}
+		return map;
+    }
+    /*test para mis metodos subidos, habria que cambiar la ruta del config.properties
+	System.out.println("------------------------pruebas path de todos los ficheros------------------");
+	    Map<String, String> test = getRutasAbsolutas();
+        System.out.println(test.values());
+        System.out.println(test.keySet());
+        */
+
+
+
+
+
+
+
+
+
 
 
 
