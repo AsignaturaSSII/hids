@@ -6,3 +6,7 @@
 
 #Fichero de prueba de cifrado
 fichero_cifrado.*
+
+#Archivos de configuración de Carlos:
+..gitignore.swp
+.metadata
