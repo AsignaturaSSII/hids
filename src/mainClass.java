@@ -9,10 +9,7 @@ import java.util.Base64;
 
 
 
-public class mainClass {System.out.println("------------------------pruebas path de todos los ficheros------------------");
-Map<String, String> test = getRutasAbsolutas();
-System.out.println(test.values());
-System.out.println(test.keySet());
+public class mainClass {
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
 
 
@@ -30,7 +27,9 @@ System.out.println(test.keySet());
 
         System.out.println ("HIDS v1.0");
         System.out.println("Cargamos la configuración inicial...");
-/*         Properties prop = cargaConfiguracion("config.properties");
+        Properties prop = cargaConfiguracion("config.properties");
+
+/*       
         //TODO: Pasar el path del fichero como la propiedad "file.hash.path" del archivo de configuración
         String data_fichero_hash = lecturaFicheros("../fichero_cifrado.txt");
         System.out.println("Archivo de hash leido en claro: "+data_fichero_hash) ;
@@ -70,6 +69,7 @@ System.out.println(test.keySet());
             @Override
             public void run()
             {
+                System.out.println("Realizando tarea...");
                 //Aquí debe estar lo que viene siendo las tareas que se realizan cada 24 horas.
                 //Obtención de Hash de ficheros en SHA-256 e introducirlo en el fichero de Hash
 
@@ -79,8 +79,6 @@ System.out.println(test.keySet());
 
                 //Ofuscación de las rutas
 
-
-                System.out.println("Realizando tarea...");
             }
         };
         return task;
@@ -99,9 +97,6 @@ System.out.println(test.keySet());
         
         return prop;
     }
-
-
-
 
     //Código referente a la obtención del hash de los ficheros
     private static String getHashFichero(MessageDigest digest, File fichero) throws IOException
@@ -135,21 +130,7 @@ System.out.println(test.keySet());
 	    //devuelve como string el hash generado
 	   return sb.toString();
     }
-    /*
-    Este codigo es para testear el metodo de arriba , funciona , si quieres testearlo deberias modificar la ruta de abajo(File turuta) a la correcta
-            //Create checksum for this file
-		File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
 
-		//Use  algorithm
-		//habria que modificar el atributo aqui a un string , ya que lo lee del archivo .config
-		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
-
-		//Generar hash
-		String hashArchivo = getHashFichero(sha256Digest, file);
-
-		//mostrar hash
-		System.out.println(hashArchivo);
-    */
     //método que obtiene la ruta absoluta de un fichero a partid e un nombre y un directorio donde comienza a buscar de manera recursiva
     private static String  getPathFichero(File dir,String nombreFichero) {
 		String res = "";
@@ -201,16 +182,7 @@ System.out.println(test.keySet());
 	    Map<String, String> test = getRutasAbsolutas();
         System.out.println(test.values());
         System.out.println(test.keySet());
-        */
-
-
-
-
-
-
-
-
-
+    */
 
     //Este método lo vamos a usar para cifrar el archivo que contiene la lista de Hash 
     private static String cifrarArchivoHash(String data, String algorithm_simetric, SecretKey keyGenerated){
@@ -324,5 +296,20 @@ System.out.println(test.keySet());
         return keyGenerated;
     }
 
+        /*
+    Este codigo es para testear el metodo de arriba , funciona , si quieres testearlo deberias modificar la ruta de abajo(File turuta) a la correcta
+            //Create checksum for this file
+		File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
+
+		//Use  algorithm
+		//habria que modificar el atributo aqui a un string , ya que lo lee del archivo .config
+		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
+
+		//Generar hash
+		String hashArchivo = getHashFichero(sha256Digest, file);
+
+		//mostrar hash
+		System.out.println(hashArchivo);
+    */
 
 } //Cierre de la clase
