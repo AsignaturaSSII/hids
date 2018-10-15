@@ -14,7 +14,6 @@ import java.security.Key;
 
 public class mainClass {
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
-
         System.out.println ("HIDS v1.0");
         //TODO: Hay que quitar esta ruta.
         //File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
@@ -343,6 +342,46 @@ public class mainClass {
         return retKey;
     }
 
+
+
+
+
+//Metodo que genera un map,relaciona nombre del fichero con el hash de éste
+private static Map<String,String> getNombreHash() throws NoSuchAlgorithmException, FileNotFoundException, IOException{
+		//ese digest es provisional deberia leerlo del config.properties
+		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
+		Map<String, String> map = getRutasAbsolutas();
+		Map<String, String> mapRes = new HashMap<String, String>(); // Relaciona nombres de fichero con hash
+		for(String n:map.keySet()){
+			File f = new File(map.get(n));
+			String hash = getHashFichero(sha256Digest,f);
+			mapRes.put(n, hash);
+		}
+		return mapRes;
+	}
+	
+	//Metodo que genera un fichero que almacena nombreFichero:hashdefichero
+	private static void generarFicheroHash() throws IOException, NoSuchAlgorithmException{
+		BufferedWriter output = null;
+		File file = new File("hashes.txt");//Hay que seleccionar una ruta segura
+		Map<String, String> map = getNombreHash();
+		String s = "";
+		Boolean esPrimero = true;
+		for(String n:map.keySet()) {
+			if(esPrimero) {
+				s=(n+":"+map.get(n)+"\n");
+				esPrimero = false;
+			}else {
+				s+=(n+":"+map.get(n)+"\n");
+			}
+		}
+		output = new BufferedWriter(new FileWriter(file));
+        output.write(s);
+        output.close();
+		
+		
+		
+	}
 
 
         /*
