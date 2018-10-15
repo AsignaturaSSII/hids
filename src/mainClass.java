@@ -177,10 +177,10 @@ public class mainClass {
 		Map<String, String> map = new HashMap<String, String>();
         Properties p = new Properties();
         //lee el archivo config.properties
-		p.load(new FileReader("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/config.properties"));
+		p.load(new FileReader("hids/src/principal/config.properties"));
 
-		//System.out.println(p.getProperty("LISTFICHEROS"));
-		String res1[] =  p.getProperty("LISTFICHEROS").split(",");
+		//System.out.println(p.getProperties("filelist"));
+		String res1[] =  p.getProperty("filelist").split(",");
 		for(int i=0;i<res1.length;i++) {
 			String ruta = getPathFichero(new File("/"), res1[i]);
 			if(!ruta.equals("")) {
