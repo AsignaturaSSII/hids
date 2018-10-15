@@ -5,15 +5,20 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
+import java.security.Key;
+
 
 
 
 public class mainClass {
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
 
-
-        File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
+        System.out.println ("HIDS v1.0");
+        //TODO: Hay que quitar esta ruta.
+        //File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
+        File file = new File("../fichero_cifrado.txt");
         
         //Use  algorithm
 		//habria que modificar el atributo aqui a un string , ya que lo lee del archivo .config
@@ -23,27 +28,35 @@ public class mainClass {
 		String hashArchivo = getHashFichero(sha256Digest, file);
 
 		//mostrar hash
-		System.out.println(hashArchivo);
+        System.out.println(hashArchivo);
+        
+        //Detectamos el Sistema Operativo y lo pasamos a una variable para tenerlo en cuenta:
+        String sistemOp = getOpSystem();
 
-        System.out.println ("HIDS v1.0");
+        
         System.out.println("Cargamos la configuración inicial...");
         Properties prop = cargaConfiguracion("config.properties");
+        System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
 
-/*       
+       
         //TODO: Pasar el path del fichero como la propiedad "file.hash.path" del archivo de configuración
-        String data_fichero_hash = lecturaFicheros("../fichero_cifrado.txt");
+        String data_fichero_hash = lecturaFicheros("../fichero_cifrado.txt",true);
         System.out.println("Archivo de hash leido en claro: "+data_fichero_hash) ;
         System.out.println("Ciframos el archivo...");
         System.out.println("Creamos la clave de cifrado simétrico...");
-        //TODO: Introducir la propiedad "algorithm.simetric.tam" del archivo de config y la "algorithm.simetric"
-        SecretKey keyGenerated = generadorClavesSimetricas("AES",256);
-        String data_fichero_hash_crypt = cifrarArchivoHash(data_fichero_hash,"AES",keyGenerated);
+        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")));
+        System.out.println("Clave de cifrado: " + keyGenerated);
+        System.out.println("Guardamos la clave de cifrado... ");
+        //Guardamos la clave de cifrado
+        guardarPassword(keyGenerated);
+        //Conseguimos la clave desde el fichero:
+        Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
+        System.out.println("Clave de Cifrado: " + keyPassword);
+        byte[] data_fichero_hash_crypt = cifrarArchivoHash(data_fichero_hash,prop.getProperty("algorithm.simetric"),keyPassword);
         System.out.println("Datos del fichero de hash cifrado: "+data_fichero_hash_crypt);
         System.out.println("Desciframos el archivo...");
-        String data_fichero_hash_decrypt = descifrarArchivoHash(data_fichero_hash_crypt, "AES",keyGenerated);
-        System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); */
-        System.out.println("***** Configuración del sistema: ");
-        System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
+        String data_fichero_hash_decrypt = descifrarArchivoHash(data_fichero_hash_crypt, prop.getProperty("algorithm.simetric"),keyPassword);
+        System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
         configuracionTiempo(0, tareaParaRealizar());
         System.out.println("Terminamos...");
 
@@ -185,17 +198,13 @@ public class mainClass {
     */
 
     //Este método lo vamos a usar para cifrar el archivo que contiene la lista de Hash 
-    private static String cifrarArchivoHash(String data, String algorithm_simetric, SecretKey keyGenerated){
+    private static byte[] cifrarArchivoHash(String data, String algorithm_simetric, Key keyGenerated){
         //Creamos las variables necesarias:
-        //String data = data_file;
-        //Definimos el algoritmo a usar
-        //TODO: Pasarle la propiedad "algorithm.simetric" del archivo de configuración
-        //String algorithm_simetric = "AES";
         byte[] cipherText = null;
 
         try{
             //Creamos el objeto Cipher y le pasamos el algoritmo a usar
-            Cipher cipherObj = Cipher.getInstance(algorithm_simetric);
+            Cipher cipherObj = Cipher.getInstance("AES");
 
             //Iniciamos el cipher pasándole los parámetros necesarios:
             cipherObj.init(Cipher.ENCRYPT_MODE, keyGenerated);
@@ -207,37 +216,27 @@ public class mainClass {
         }
         //String cryptValue = new Base64.encode(cipherText);
         //return cryptValue;
-        return cipherText.toString();
+        return cipherText;
     }
-
-        //Este método lo vamos a usar para cifrar el archivo que contiene la lista de Hash 
-    private static String descifrarArchivoHash(String data_crypt, String algorithm_simetric, SecretKey keyGenerated){
+    //Este método lo vamos a usar para cifrar el archivo que contiene la lista de Hash 
+    private static String descifrarArchivoHash(byte[] data_crypt, String algorithm_simetric, Key keyGenerated){
         //Creamos las variables necesarias:
-        //String data = data_file;
-        //Definimos el algoritmo a usar
-        //TODO: Pasarle la propiedad "algorithm.simetric" del archivo de configuración
-        //String algorithm_simetric = "AES";
-        byte[] cipherTextDecrypt = null;
-    
+        String decryptTextRes = "";
         try{
-            //Creamos el objeto Cipher y le pasamos el algoritmo a usar
-            Cipher decryptcipherObj = Cipher.getInstance(algorithm_simetric);
-
-            //Iniciamos el cipher pasándole los parámetros necesarios:
-            decryptcipherObj.init(Cipher.DECRYPT_MODE, keyGenerated);
-    
-            //byte[] decodeValue = new Base64().decodeBuffer(data_crypt);
-            byte[] decodeValue = data_crypt.getBytes();
-
-            //Por último ciframos los datos necesarios:
-            cipherTextDecrypt = decryptcipherObj.doFinal(decodeValue);
+            Cipher cipherObj = Cipher.getInstance(algorithm_simetric);
+            //Inicializamos el cifrador para descifrar pasándole la clave generada:
+            cipherObj.init(Cipher.DECRYPT_MODE, keyGenerated);
+            byte[] decryptText = cipherObj.doFinal(data_crypt);
+            // Texto obtenido, igual al original.
+            decryptTextRes = new String(decryptText);
         }catch(Exception exception){
             exception.printStackTrace();
         }
-        return cipherTextDecrypt.toString();
+        return decryptTextRes;
     }
 
-    private static String lecturaFicheros(String dirArchivo){
+    //El parámetro salt indica si debemos añadirle un salt o no para el cifrado
+    private static String lecturaFicheros(String dirArchivo, Boolean salt){
         //Creamos las variables a usar:
         String ret_data = new String(); 
         File file = null;
@@ -255,7 +254,11 @@ public class mainClass {
             while((var_control_string = bufferedReader.readLine()) != null){
                 System.out.println("Línea --> "+var_control_string);
                 //TODO: Pasarle la propiedad "keyword.crypt.fich.hash" del archivo config en vez de "asignaturaSSII"
-                ret_data = ret_data + "asignaturaSSII" + var_control_string;
+                if(salt){
+                    ret_data = ret_data + "asignaturaSSII" + var_control_string;
+                }else{
+                    ret_data = var_control_string;
+                }
             }
 
         } catch(Exception exception){
@@ -275,26 +278,72 @@ public class mainClass {
         return ret_data;
     } 
 
-    private static SecretKey generadorClavesSimetricas(String alg, Integer longitud){
-        KeyGenerator keyGen = null;
-        SecretKey keyGenerated = null;
+    private static Key generadorClavesSimetricas(String alg, Integer longitud){
+        Key key = null;
         try{
-            //Creamos el Objeto KeyGenerator para que nos cree una clave para el cifrado simétrico.
-            keyGen = KeyGenerator.getInstance(alg);
-            //Le indicamos el tamaño en bits:
-            //TODO: Pasarle la propiedad "algorithm.simetric.tam" del archivo de configuración
-            keyGen.init(longitud);
-
-            //Generamos la clave:
-            keyGenerated = keyGen.generateKey();
-            System.out.println("Key generada: "+keyGenerated.toString());
-
-                
+            // Generamos una clave de 128 bits adecuada para AES
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(alg);
+            keyGenerator.init(longitud);
+            key = keyGenerator.generateKey();
+            
+            // Alternativamente, una clave que queramos que tenga al menos 16 bytes
+            // y nos quedamos con los bytes 0 a 15
+            key = new SecretKeySpec("8m[zWQq<!me_8kMg".getBytes(),  0, 16, alg);
+            
         }catch(Exception exception){
             exception.printStackTrace();
         }
-        return keyGenerated;
+        return key;
     }
+
+    //Función para detectar el sistema operativo que esta corriendo la máquina. Sería buena idea introducir los SO como propiedades en el config
+    private static String getOpSystem(){
+        String res_ret = "";
+        String sistemOp_aux = System.getProperty("os.name").toLowerCase();
+        if(sistemOp_aux.indexOf("win") >= 0 ){
+            res_ret = "windows";
+        } else if(sistemOp_aux.indexOf("mac") >= 0){
+            res_ret = "mac";
+        } else if( sistemOp_aux.indexOf("sunos") >= 0 ){
+            res_ret = "solaris";
+        } else {
+            res_ret = "linux";
+        }
+        return res_ret;
+    }
+
+    private static void conexionBBDD(String username, String password){
+        //Conexion con la base de datos 
+    }
+
+    private static void cerrarConexionBBDD(){
+        //Cerramos la conexión con la base de datos
+    }
+
+    private static void guardarPassword(Key password){
+        //En principio escribimos en un fichero:
+        FileWriter fichero = null;
+        try{
+            fichero = new FileWriter("../fichero_password.txt");
+            fichero.write(Base64.getEncoder().encodeToString(password.getEncoded()) +"\n");
+
+            fichero.close();
+        }catch(Exception exception){
+            exception.printStackTrace();
+        }
+    }
+
+    private static Key getPasswordSimetrica(String algorithm_simetric){
+        //TODO: pasar propeidad del fichero config.properties
+        String password = lecturaFicheros("../fichero_password.txt",false);
+        System.out.println("pass without decrypt -> "+password);
+        byte[] decKey = Base64.getDecoder().decode(password);
+        System.out.println("decKey -> "+decKey.toString());
+        Key retKey = new SecretKeySpec(decKey, 0, decKey.length, algorithm_simetric);
+        return retKey;
+    }
+
+
 
         /*
     Este codigo es para testear el metodo de arriba , funciona , si quieres testearlo deberias modificar la ruta de abajo(File turuta) a la correcta
