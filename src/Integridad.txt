@@ -1,3 +1,3 @@
-El archivo C:\Users\carlo\Desktop\Seguridad\hids\src\fichero1.txt coincide
+El archivo C:\Users\carlo\Desktop\Seguridad\hids\src\fichero1.txt no coincide
 El archivo C:\Users\carlo\Desktop\Seguridad\hids\src\fichero2.txt coincide
- La integridad de los archivos es del 100%.
+ La integridad de los archivos es del 50.0%.Los ficheros que no coinciden son: [C:\Users\carlo\Desktop\Seguridad\hids\src\fichero1.txt]

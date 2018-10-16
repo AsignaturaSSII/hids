@@ -1,1 +1,1 @@
-Fichero de prueba para calcular el hash
+Fichero de prueba para hash

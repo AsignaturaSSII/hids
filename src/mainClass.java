@@ -58,8 +58,11 @@ public class mainClass {
         System.out.println(mapHashesOriginales.keySet());
         System.out.println(mapHashesOriginales.values());
         comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");//asi solo en windows
+        //prueba para forzar error
+        File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
+        modificarFichero("Fichero de prueba para hash",fichero1);//para testear cambiar el primer parametro
+        comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");
         */
-
         /*
         String claveSimetrica = pedirPasswordSimetrica();
         System.out.println("**************************************************");
@@ -240,8 +243,13 @@ public class mainClass {
             for(int i=0;i<res1.length;i++) {
                     //En el caso de windows habria que introducir rutas absolutas, en este caso metemos ficheros en la ruta del proyecto
                     //aqui se generaria el map nombre,ruta
-                   String ruta = System.getProperty("user.dir")+File.separator+res1[i];
+                    File aux = new File(System.getProperty("user.dir")+File.separator+res1[i]);
+                    //Comprobamos si el fichero que estamos buscando Existe o no antes de añadir la ruta absoluta
+                    if(aux.exists()){
+                        String ruta = System.getProperty("user.dir")+File.separator+res1[i];
                        map.put(res1[i],ruta);
+                    }
+                   
                }
         }else{
             res1 = p.getProperty("filelist.linux").split(",");
@@ -548,18 +556,21 @@ private static void generarFicheroHash(Properties p){
             for(String s:originalHash.keySet()){
                 
                 if(nuevosHash.get(s).equals(originalHash.get(s))) {
-                    System.out.println("El archivo "+s+" coincide");
+                   
                     res = res + "El archivo "+s+" coincide"+"\n";
                 }else {
                     ListaNoCoincidencias.add(s);
-                    System.out.println("El archivo "+s+" no coincide.");
+                   
                     res = res + "El archivo "+s+" no coincide"+"\n";
                 }
             }
             BufferedWriter output = null;
             File file = new File("Integridad.txt");//Hay que seleccionar una ruta segura
             if(file.exists()){
-                res = res + " La integridad de los archivos es del "+ ((total - ListaNoCoincidencias.size())/total)*100 + "%.";
+                float dif = (float)(total - ListaNoCoincidencias.size());
+                float div = dif/total;
+                res = res + " La integridad de los archivos es del "+ (div*100 + "%.");
+                res = res + "Los ficheros que no coinciden son: "+ListaNoCoincidencias.toString();
                 try {
                     output = new BufferedWriter(new FileWriter(file));
                     output.write(res);
@@ -634,5 +645,22 @@ private static void generarFicheroHash(Properties p){
         System.out.println("Datos del fichero de hash cifrado: "+data_fichero_hash_crypt);
         return data_fichero_hash_crypt;
     }
+
+    private static void modificarFichero(String s,File f){
+        // este es el archivo que insertaras caracteres
+        try {
+       FileWriter escribir = new FileWriter(f);
+       String texto = s;
+       for(int i=0; i<texto.length();i++){
+       escribir.write(texto.charAt(i));
+       
+       System.out.println("El archivo "+ f.getPath()+ " ha sido modificado.");
+       }
+       escribir.close();
+    }catch(IOException e){
+    }
+   }
+
+
 
 } //Cierre de la clase
