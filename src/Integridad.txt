@@ -1,0 +1,3 @@
+El archivo fichero2 coincide
+El archivo fichero1 coincide
+ La integridad de los archivos es del 100%.
