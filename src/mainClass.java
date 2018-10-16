@@ -15,6 +15,7 @@ import java.security.Key;
 public class mainClass {
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
         System.out.println ("HIDS v1.0");
+        System.out.println("************************* HIDS v1.0 *************************");
         //TODO: Hay que quitar esta ruta.
         //File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
         File file = new File("../fichero_cifrado.txt");
@@ -36,14 +37,17 @@ public class mainClass {
         System.out.println("Cargamos la configuración inicial...");
         Properties prop = cargaConfiguracion("config.properties");
         System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
+        System.out.println("Configuración inicial cargada");
+        System.out.println("**************************************************");
+        String claveSimetrica = pedirPasswordSimetrica();
+        System.out.println("**************************************************");
 
-       
         //TODO: Pasar el path del fichero como la propiedad "file.hash.path" del archivo de configuración
         String data_fichero_hash = lecturaFicheros("../fichero_cifrado.txt",true);
         System.out.println("Archivo de hash leido en claro: "+data_fichero_hash) ;
         System.out.println("Ciframos el archivo...");
         System.out.println("Creamos la clave de cifrado simétrico...");
-        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")));
+        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")),claveSimetrica);
         System.out.println("Clave de cifrado: " + keyGenerated);
         System.out.println("Guardamos la clave de cifrado... ");
         //Guardamos la clave de cifrado
@@ -272,7 +276,7 @@ public class mainClass {
         return ret_data;
     } 
 
-    private static Key generadorClavesSimetricas(String alg, Integer longitud){
+    private static Key generadorClavesSimetricas(String alg, Integer longitud, String passwordSimetrica){
         Key key = null;
         try{
             // Generamos una clave de 128 bits adecuada para AES
@@ -282,7 +286,7 @@ public class mainClass {
             
             // Alternativamente, una clave que queramos que tenga al menos 16 bytes
             // y nos quedamos con los bytes 0 a 15
-            key = new SecretKeySpec("8m[zWQq<!me_8kMg".getBytes(),  0, 16, alg);
+            key = new SecretKeySpec(passwordSimetrica.getBytes(),  0, 16, alg);
             
         }catch(Exception exception){
             exception.printStackTrace();
@@ -378,6 +382,23 @@ private static Map<String,String> getNombreHash() throws NoSuchAlgorithmExceptio
 		
 	}
 
+    private static String pedirPasswordSimetrica(){
+        String res_ret = new String();
+        System.out.println("Introduzca una clave de 16 bits para el cifrado simétrico: ");
+        Scanner inputText = new Scanner(System.in);
+        res_ret = inputText.next();
+        if(res_ret.length() != 16){
+            System.out.println("[ERROR] La clave introducida no es de 16 bits.");
+            System.out.println("Introduzca una clave de 16 bits: ");
+            res_ret = inputText.next();
+            if(res_ret.length() != 16){
+                System.out.println("[ERROR] La clave introducida no es de 16 bits.");
+                System.out.println("Ha excedido el número de intentos.");
+                System.exit(0);
+            }
+        }
+        return res_ret;
+    }
 
         /*
     Este codigo es para testear el metodo de arriba , funciona , si quieres testearlo deberias modificar la ruta de abajo(File turuta) a la correcta
