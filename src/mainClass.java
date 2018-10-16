@@ -16,7 +16,6 @@ import java.sql.*;
 public class mainClass {
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
         System.out.println ("HIDS v1.0");
-        System.out.println("************************* HIDS v1.0 *************************");
         //TODO: Hay que quitar esta ruta.
         //File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
         File file = new File("../fichero_cifrado.txt");
@@ -50,7 +49,7 @@ public class mainClass {
         System.out.println("Archivo de hash leido en claro: "+data_fichero_hash) ;
         System.out.println("Ciframos el archivo...");
         System.out.println("Creamos la clave de cifrado simétrico...");
-        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")),claveSimetrica);
+        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")));
         System.out.println("Clave de cifrado: " + keyGenerated);
         //Conseguimos la clave desde el fichero:
         Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
@@ -66,6 +65,11 @@ public class mainClass {
         System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
         configuracionTiempo(0, tareaParaRealizar());
         System.out.println("Terminamos...");
+
+
+
+        
+		
  
     } //Cierre del main
 
@@ -114,37 +118,49 @@ public class mainClass {
     }
 
     //Código referente a la obtención del hash de los ficheros
-    private static String getHashFichero(MessageDigest digest, File fichero) throws IOException
-	{
-	    //creamos el file input stream para leer el contenido del archivo
-	    FileInputStream fis = new FileInputStream(fichero);
-	     
-	    //Creamos el byte array para leer los datos en trozos
-	    byte[] byteArray = new byte[8048];
-	    int bytesCount = 0;
-	      
-	    //Lee el archivo y lo va añadiendo en el digest
-	    while ((bytesCount = fis.read(byteArray)) != -1) {
-	        digest.update(byteArray, 0, bytesCount);
-	    };
-	     
-	    //Paramos la lectura del fichero, ya que ha terminado
-	    fis.close();
-	     
-	    //Obtenemos el  hash's bytes
-	    byte[] bytes = digest.digest();
-	     
-	    //El tipo bytes[] usa formato decimal, por tanto, hay que cambiarlo 
-	    //Convierte de el formato decimal al hexadecimal
-	    StringBuilder sb = new StringBuilder();
-	    for(int i=0; i< bytes.length ;i++)
-	    {
-	        sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-	    }
-	     
-	    //devuelve como string el hash generado
-	   return sb.toString();
-    }
+        //Código referente a la obtención del hash de los ficheros
+        private static String getHashFichero(MessageDigest digest, File fichero)
+        {
+            String hash = "";
+            
+            
+            try {
+            //Get file input stream for reading the file content
+            FileInputStream fis = new FileInputStream(fichero);
+             
+            //Create byte array to read data in chunks
+            byte[] byteArray = new byte[8048];
+            int bytesCount = 0;
+              
+            //Read file data and update in message digest
+            while ((bytesCount = fis.read(byteArray)) != -1) {
+                digest.update(byteArray, 0, bytesCount);
+            };
+             
+            //close the stream; We don't need it now.
+            fis.close();
+             
+            //Get the hash's bytes
+            byte[] bytes = digest.digest();
+             
+            //This bytes[] has bytes in decimal format;
+            //Convert it to hexadecimal format
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i< bytes.length ;i++)
+            {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+             
+           
+           hash = sb.toString();
+           
+            }
+            catch(IOException e) {
+                System.out.println("El fichero del que se quiere obtener el hash no existe!!!");
+            }
+            return hash;
+            
+        }
 
     //método que obtiene la ruta absoluta de un fichero a partid e un nombre y un directorio donde comienza a buscar de manera recursiva
     private static String  getPathFichero(File dir,String nombreFichero) {
@@ -174,22 +190,30 @@ public class mainClass {
     } 
     
     //Metodo que devuelve un map que relaciona key = nombrefichero con value= ruta absoluta, devuelve dicho map
-    private static Map<String,String> getRutasAbsolutas() throws FileNotFoundException, IOException{
-		Map<String, String> map = new HashMap<String, String>();
-        Properties p = new Properties();
-        //lee el archivo config.properties
-		p.load(new FileReader("hids/src/principal/config.properties"));
+    //Recibe el properties que se obtiene con cargarconfiguracion
 
-		//System.out.println(p.getProperties("filelist"));
+
+
+    private static Map<String,String> getRutasAbsolutas(Properties p){
+		
+		Map<String, String> map = new HashMap<String, String>();
+		//obtenemos del valor filelist= una lista de ficheros, por tanto , debemos seleccionar cada valor de la lista
 		String res1[] =  p.getProperty("filelist").split(",");
+		
 		for(int i=0;i<res1.length;i++) {
-			String ruta = getPathFichero(new File("/"), res1[i]);
+            //Obtenemos la ruta de cada uno de los ficheros que tienen el nombre que aparece en el archivo deconfiguracion
+            String ruta = getPathFichero(new File("/"), res1[i]);
+            
 			if(!ruta.equals("")) {
+
+                //si el fichero tiene ruta "" es que no existe, por tanto, aquí, solo entra en caso de que existe 
+                //y lo introduce en el map
 				map.put(res1[i],getPathFichero(new File("/"), res1[i]));
 			}
 		}
 		return map;
-    }
+	}
+   
     /*test para mis metodos subidos, habria que cambiar la ruta del config.properties
 	System.out.println("------------------------pruebas path de todos los ficheros------------------");
 	    Map<String, String> test = getRutasAbsolutas();
@@ -282,7 +306,7 @@ public class mainClass {
         return ret_data;
     } 
 
-    private static Key generadorClavesSimetricas(String alg, Integer longitud, String passwordSimetrica){
+    private static Key generadorClavesSimetricas(String alg, Integer longitud){
         Key key = null;
         try{
             // Generamos una clave de 128 bits adecuada para AES
@@ -292,7 +316,7 @@ public class mainClass {
             
             // Alternativamente, una clave que queramos que tenga al menos 16 bytes
             // y nos quedamos con los bytes 0 a 15
-            key = new SecretKeySpec(passwordSimetrica.getBytes(),  0, 16, alg);
+            key = new SecretKeySpec("8m[zWQq<!me_8kMg".getBytes(),  0, 16, alg);
             
         }catch(Exception exception){
             exception.printStackTrace();
@@ -377,60 +401,68 @@ public class mainClass {
 
 
 
-//Metodo que genera un map,relaciona nombre del fichero con el hash de éste
-private static Map<String,String> getNombreHash() throws NoSuchAlgorithmException, FileNotFoundException, IOException{
-		//ese digest es provisional deberia leerlo del config.properties
-		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
-		Map<String, String> map = getRutasAbsolutas();
-		Map<String, String> mapRes = new HashMap<String, String>(); // Relaciona nombres de fichero con hash
-		for(String n:map.keySet()){
-			File f = new File(map.get(n));
-			String hash = getHashFichero(sha256Digest,f);
-			mapRes.put(n, hash);
-		}
-		return mapRes;
-	}
-	
-	//Metodo que genera un fichero que almacena nombreFichero:hashdefichero
-	private static void generarFicheroHash() throws IOException, NoSuchAlgorithmException{
-		BufferedWriter output = null;
-		File file = new File("hashes.txt");//Hay que seleccionar una ruta segura
-		Map<String, String> map = getNombreHash();
-		String s = "";
-		Boolean esPrimero = true;
-		for(String n:map.keySet()) {
-			if(esPrimero) {
-				s=(n+":"+map.get(n)+"\n");
-				esPrimero = false;
-			}else {
-				s+=(n+":"+map.get(n)+"\n");
-			}
-		}
-		output = new BufferedWriter(new FileWriter(file));
-        output.write(s);
-        output.close();
-		
-		
-		
-	}
 
-    private static String pedirPasswordSimetrica(){
-        String res_ret = new String();
-        System.out.println("Introduzca una clave de 16 bits para el cifrado simétrico: ");
-        Scanner inputText = new Scanner(System.in);
-        res_ret = inputText.next();
-        if(res_ret.length() != 16){
-            System.out.println("[ERROR] La clave introducida no es de 16 bits.");
-            System.out.println("Introduzca una clave de 16 bits: ");
-            res_ret = inputText.next();
-            if(res_ret.length() != 16){
-                System.out.println("[ERROR] La clave introducida no es de 16 bits.");
-                System.out.println("Ha excedido el número de intentos.");
-                System.exit(0);
-            }
-        }
-        return res_ret;
+    //Metodo que genera un map,relaciona nombre del fichero con el hash de éste
+private static Map<String,String> getNombreHash(Properties p){
+	
+    //Obtenemos del archivo de configuración el algoritmo que vamos a usar para generar los hash
+    MessageDigest sha256Digest = null;
+    String hash = "";
+    String algoritmo = p.getProperty("algorythm");
+    try {
+        sha256Digest = MessageDigest.getInstance(algoritmo);
     }
+    catch(NoSuchAlgorithmException e) {
+        System.out.println("El algoritmo para generar el hash no ha sido seleccionado correctamente.");
+    }
+    Map<String, String> map = getRutasAbsolutas(p);
+    Map<String, String> mapRes = new HashMap<String, String>(); // Relaciona nombres de fichero con hash
+    
+    for(String n:map.keySet()){
+        
+        File f = new File(map.get(n));
+        hash = getHashFichero(sha256Digest,f);
+        mapRes.put(n, hash);
+    }
+    return mapRes;
+}
+	
+	
+
+
+
+//Metodo que genera un fichero que almacena nombreFichero:hashdefichero
+private static void generarFicheroHash(Properties p){
+		
+    BufferedWriter output = null;
+    File file = new File("hashes.txt");//Hay que seleccionar una ruta segura
+    Map<String, String> map = getNombreHash(p);
+    String s = "";
+    Boolean esPrimero = true;g
+    
+    for(String n:map.keySet()) {
+        if(esPrimero) {
+            s=(n+":"+map.get(n)+"\n");
+            esPrimero = false;
+        }else {
+            s+=(n+":"+map.get(n)+"\n");
+        }
+    }
+    try {
+    output = new BufferedWriter(new FileWriter(file));
+    output.write(s);
+    output.close();
+    }
+    catch(IOException e) {
+        System.out.println("El fichero de hash no se ha podido generar correctamente.");
+        
+    }
+    
+}
+
+
+
+
 
         /*
     Este codigo es para testear el metodo de arriba , funciona , si quieres testearlo deberias modificar la ruta de abajo(File turuta) a la correcta
@@ -447,5 +479,62 @@ private static Map<String,String> getNombreHash() throws NoSuchAlgorithmExceptio
 		//mostrar hash
 		System.out.println(hashArchivo);
     */
+
+
+
+
+	//Metodo comparar y leer
+	//Metodo de generacion de fichero hashCifrado
+	private static void generaFicheroHashCifrado(byte[] hashCifrado) {
+		
+		try {
+			//Esto funciona en linux en windows habria que modificar el path
+			FileOutputStream stream = new FileOutputStream("./hashCifrado.txt");
+		    stream.write(hashCifrado);
+		    stream.close();
+		}catch(	IOException e) {
+			System.out.println("El archivo hash Cifrado no se ha podido generar");
+		}
+		
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//Metodo que lee el fichero de los hash(RAW) y saca nombreFichero:hash
+	private static Map<String,String> leerFichero(String hashes){
+		//Obtenemos el valor del archivo que almacena los hashes
+		String hashesLeido = lecturaFicheros("hashes.txt", false);
+		String[] parts = hashesLeido.split("-");
+		Map<String, String> map = new HashMap<String, String>();
+		
+		for(String s:parts) {
+			System.out.println("strings troceados :"+s);
+			String[] aux = hashesLeido.split(":");
+			map.put(aux[0], aux[1]);
+		}
+		return map;
+	}
+    
+    //metodo comparar hashes
+	private static void comparaHashes(Map<String,String>nuevosHash,Properties prop){
+		Map<String, String> originalHash = getNombreHash(prop);
+		List<String>ListaCoincidencias = new ArrayList<String>();
+		for(String s:originalHash.keySet()){
+			if(nuevosHash.get(s).equals(originalHash.get(s))) {
+				System.out.println("El archivo "+s+"coincide");
+			}
+			//queda testearlo bien
+		}
+		
+		
+	
 
 } //Cierre de la clase
