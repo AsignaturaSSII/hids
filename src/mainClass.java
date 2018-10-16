@@ -39,6 +39,8 @@ public class mainClass {
         System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
         System.out.println("Configuración inicial cargada");
         System.out.println("**************************************************");
+
+
         /*
         String claveSimetrica = pedirPasswordSimetrica();
         System.out.println("**************************************************");
@@ -215,21 +217,29 @@ public class mainClass {
         //Comprobamos
         if(getOpSystem().equals("windows")){
             res1 = p.getProperty("filelist").split(",");
+
+            for(int i=0;i<res1.length;i++) {
+                    //En el caso de windows habria que introducir rutas absolutas, en este caso metemos ficheros en la ruta del proyecto
+                    //aqui se generaria el map nombre,ruta
+                   String ruta = System.getProperty("user.dir")+File.separator+res1[i];
+                       map.put(res1[i],ruta);
+               }
         }else{
             res1 = p.getProperty("filelist.linux").split(",");
-        }
+        
 		
-		for(int i=0;i<res1.length;i++) {
-            //Obtenemos la ruta de cada uno de los ficheros que tienen el nombre que aparece en el archivo de configuracion
-            String ruta = getPathFichero(new File("/"), res1[i]);
+		    for(int i=0;i<res1.length;i++) {
+             //Obtenemos la ruta de cada uno de los ficheros que tienen el nombre que aparece en el archivo de configuracion
+                String ruta = getPathFichero(new File("/"), res1[i]);
             
-			if(!ruta.equals("")) {
+			    if(!ruta.equals("")) {
 
                 //si el fichero tiene ruta "" es que no existe, por tanto, aquí, solo entra en caso de que existe 
                 //y lo introduce en el map
-				map.put(res1[i],getPathFichero(new File("/"), res1[i]));
-			}
-		}
+				    map.put(res1[i],getPathFichero(new File("/"), res1[i]));
+			    }
+            }
+        }
 		return map;
 	}
    
