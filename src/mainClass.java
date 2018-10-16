@@ -280,7 +280,7 @@ public class mainClass {
                     if(salt){
                         ret_data = ret_data + "asignaturaSSII" + var_control_string;
                     }else{
-                        ret_data = var_control_string;
+                        ret_data = ret_data + var_control_string;
                     }
                 }
             }
