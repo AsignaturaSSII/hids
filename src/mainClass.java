@@ -40,6 +40,8 @@ public class mainClass {
         System.out.println("Configuración inicial cargada");
         System.out.println("**************************************************");
 
+        /*
+        //Pruebas Realizadas en windows
         //Prueba de la creación de ficheros hash
         Map<String,String>mapRutas = getRutasAbsolutas(prop);
         //comprobamos que almacena los nombres y las rutas absolutas
@@ -52,10 +54,11 @@ public class mainClass {
         generarFicheroHash(prop);
         //Comprobamos el metodo que lee el fichero de hashes
         Map<String,String>mapHashesOriginales =  leerFichero(System.getProperty("user.dir"));
-        //comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");
         System.out.println("Leidos-------------------------------------");
         System.out.println(mapHashesOriginales.keySet());
         System.out.println(mapHashesOriginales.values());
+        comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");//asi solo en windows
+        */
 
         /*
         String claveSimetrica = pedirPasswordSimetrica();

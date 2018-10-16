@@ -1,3 +1,3 @@
-El archivo fichero2 coincide
-El archivo fichero1 coincide
+El archivo C:\Users\carlo\Desktop\Seguridad\hids\src\fichero1.txt coincide
+El archivo C:\Users\carlo\Desktop\Seguridad\hids\src\fichero2.txt coincide
  La integridad de los archivos es del 100%.
