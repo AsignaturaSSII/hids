@@ -61,7 +61,7 @@ public class mainClass {
         //Guardamos la clave de cifrado y el contenido del ficheor de hash cifrado
         guardarPasswordAndCryptFile(keyGenerated,data_fichero_hash_crypt);
         System.out.println("Desciframos el archivo...");
-        String data_fichero_hash_decrypt = descifrarArchivoHash(data_fichero_hash_crypt, prop.getProperty("algorithm.simetric"),keyPassword);
+        String data_fichero_hash_decrypt = descifrarArchivoHash(lecturaFicheros("../fichero_cifrado.txt", false), prop.getProperty("algorithm.simetric"),keyPassword);
         System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
         configuracionTiempo(0, tareaParaRealizar());
         System.out.println("Terminamos...");
