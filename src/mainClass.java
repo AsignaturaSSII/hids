@@ -426,6 +426,9 @@ private static void generarFicheroHash(Properties p){
 }
 
 
+
+
+
         /*
     Este codigo es para testear el metodo de arriba , funciona , si quieres testearlo deberias modificar la ruta de abajo(File turuta) a la correcta
             //Create checksum for this file
@@ -441,5 +444,62 @@ private static void generarFicheroHash(Properties p){
 		//mostrar hash
 		System.out.println(hashArchivo);
     */
+
+
+
+
+	//Metodo comparar y leer
+	//Metodo de generacion de fichero hashCifrado
+	private static void generaFicheroHashCifrado(byte[] hashCifrado) {
+		
+		try {
+			//Esto funciona en linux en windows habria que modificar el path
+			FileOutputStream stream = new FileOutputStream("./hashCifrado.txt");
+		    stream.write(hashCifrado);
+		    stream.close();
+		}catch(	IOException e) {
+			System.out.println("El archivo hash Cifrado no se ha podido generar");
+		}
+		
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//Metodo que lee el fichero de los hash(RAW) y saca nombreFichero:hash
+	private static Map<String,String> leerFichero(String hashes){
+		//Obtenemos el valor del archivo que almacena los hashes
+		String hashesLeido = lecturaFicheros("hashes.txt", false);
+		String[] parts = hashesLeido.split("-");
+		Map<String, String> map = new HashMap<String, String>();
+		
+		for(String s:parts) {
+			System.out.println("strings troceados :"+s);
+			String[] aux = hashesLeido.split(":");
+			map.put(aux[0], aux[1]);
+		}
+		return map;
+	}
+    
+    //metodo comparar hashes
+	private static void comparaHashes(Map<String,String>nuevosHash,Properties prop){
+		Map<String, String> originalHash = getNombreHash(prop);
+		List<String>ListaCoincidencias = new ArrayList<String>();
+		for(String s:originalHash.keySet()){
+			if(nuevosHash.get(s).equals(originalHash.get(s))) {
+				System.out.println("El archivo "+s+"coincide");
+			}
+			//queda testearlo bien
+		}
+		
+		
+	
 
 } //Cierre de la clase
