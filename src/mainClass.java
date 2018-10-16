@@ -165,20 +165,23 @@ public class mainClass {
         
             File[] files = dir.listFiles();
             for (File file : files) {
-                if (file.isDirectory()) {
-                    //System.out.println("directorio:" + file.getCanonicalPath());
-                    //verContenidoFolder(file);
-                	if(res!="") {
-                		break;
-                	}else {
-                		res = getPathFichero(file,nombreFichero);
-                	}
-                } else {
-                    if(file.getName().equals(nombreFichero)) {
-                    	//System.out.println("entro aquí");
-                    	res = file.getAbsolutePath();
-                    	break;
-                    }  
+                //Comprobamos que existe en el fichero
+                if(file.exists()){
+                    if (file.isDirectory()) {
+                        //System.out.println("directorio:" + file.getCanonicalPath());
+                        //verContenidoFolder(file);
+                        if(res!="") {
+                            break;
+                        }else {
+                            res = getPathFichero(file,nombreFichero);
+                        }
+                    } else {
+                        if(file.getName().equals(nombreFichero)) {
+                            //System.out.println("entro aquí");
+                            res = file.getAbsolutePath();
+                            break;
+                        }  
+                    }
                 }
             }
         
@@ -412,8 +415,10 @@ private static Map<String,String> getNombreHash(Properties p){
     for(String n:map.keySet()){
         
         File f = new File(map.get(n));
-        hash = getHashFichero(sha256Digest,f);
-        mapRes.put(n, hash);
+        if(f.exists()){
+            hash = getHashFichero(sha256Digest,f);
+            mapRes.put(n, hash);
+        }
     }
     return mapRes;
 }
@@ -440,9 +445,11 @@ private static void generarFicheroHash(Properties p){
         }
     }
     try {
-    output = new BufferedWriter(new FileWriter(file));
-    output.write(s);
-    output.close();
+        if(file.exists()){
+            output = new BufferedWriter(new FileWriter(file));
+            output.write(s);
+            output.close();
+        }
     }
     catch(IOException e) {
         System.out.println("El fichero de hash no se ha podido generar correctamente.");
@@ -519,18 +526,19 @@ private static void generarFicheroHash(Properties p){
             }
             BufferedWriter output = null;
             File file = new File("Integridad.txt");//Hay que seleccionar una ruta segura
-            
-            res = res + " La integridad de los archivos es del "+ ((total - ListaNoCoincidencias.size())/total)*100 + "%.";
-            try {
-                output = new BufferedWriter(new FileWriter(file));
-                output.write(res);
-                output.close();
+            if(file.exists()){
+                res = res + " La integridad de los archivos es del "+ ((total - ListaNoCoincidencias.size())/total)*100 + "%.";
+                try {
+                    output = new BufferedWriter(new FileWriter(file));
+                    output.write(res);
+                    output.close();
+                    }
+                    catch(IOException e) {
+                        System.out.println("El fichero de hash no se ha podido generar correctamente.");
+                        
+                    }
+                System.out.println(res);
                 }
-                catch(IOException e) {
-                    System.out.println("El fichero de hash no se ha podido generar correctamente.");
-                    
-                }
-            System.out.println(res);
         }
     
 
