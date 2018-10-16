@@ -60,9 +60,12 @@ public class mainClass {
         comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");//asi solo en windows
         //prueba para forzar error
         File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
-        modificarFichero("Fichero de prueba para hash",fichero1);//para testear cambiar el primer parametro
+        //modificarFichero("Fichero de prueba para hash",fichero1);//para testear cambiar el primer parametro
+        //fichero1.delete();//Prueba de eliminado de ficheros 
         comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");
-        */
+        /*
+
+
         /*
         String claveSimetrica = pedirPasswordSimetrica();
         System.out.println("**************************************************");
@@ -554,14 +557,18 @@ private static void generarFicheroHash(Properties p){
             Integer total = originalHash.keySet().size();
             String res = ""; 
             for(String s:originalHash.keySet()){
-                
-                if(nuevosHash.get(s).equals(originalHash.get(s))) {
-                   
-                    res = res + "El archivo "+s+" coincide"+"\n";
-                }else {
+                if(nuevosHash.get(s)==null){
+                    res = res + "El archivo "+s+" ha sido eliminado"+"\n";
                     ListaNoCoincidencias.add(s);
+                }else{
+                     if(nuevosHash.get(s).equals(originalHash.get(s))) {
                    
-                    res = res + "El archivo "+s+" no coincide"+"\n";
+                         res = res + "El archivo "+s+" coincide"+"\n";
+                    }else {
+                        ListaNoCoincidencias.add(s);
+                   
+                         res = res + "El archivo "+s+" no coincide"+"\n";
+                    }
                 }
             }
             BufferedWriter output = null;
