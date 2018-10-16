@@ -499,25 +499,39 @@ private static void generarFicheroHash(Properties p){
 	}
     
     //metodo comparar hashes
-	private static void comparaHashes(Map<String,String>nuevosHash,Properties prop,String rutaHash){
+		//Metodo para comparar 
+        private static void comparaHashes(Map<String,String>nuevosHash,Properties prop,String rutaHash){
 		
-		Map<String, String> originalHash = leerFichero(rutaHash);
-		List<String>ListaNoCoincidencias = new ArrayList<String>();
-		Integer total = originalHash.keySet().size();
-		String res = ""; 
-		for(String s:originalHash.keySet()){
-			
-			if(nuevosHash.get(s).equals(originalHash.get(s))) {
-				//System.out.println("El archivo "+s+"coincide");
-				res = res + "El archivo "+s+"coincide"+"\n";
-			}else {
-				ListaNoCoincidencias.add(s);
-				//System.out.println("El archivo "+s+"no coincide.");
-				res = res + "El archivo "+s+"no coincide"+"\n";
-			}
-		}
-		System.out.println(res);
-    }
+            Map<String, String> originalHash = leerFichero(rutaHash);
+            List<String>ListaNoCoincidencias = new ArrayList<String>();
+            Integer total = originalHash.keySet().size();
+            String res = ""; 
+            for(String s:originalHash.keySet()){
+                
+                if(nuevosHash.get(s).equals(originalHash.get(s))) {
+                    System.out.println("El archivo "+s+" coincide");
+                    res = res + "El archivo "+s+" coincide"+"\n";
+                }else {
+                    ListaNoCoincidencias.add(s);
+                    System.out.println("El archivo "+s+" no coincide.");
+                    res = res + "El archivo "+s+" no coincide"+"\n";
+                }
+            }
+            BufferedWriter output = null;
+            File file = new File("Integridad.txt");//Hay que seleccionar una ruta segura
+            
+            res = res + " La integridad de los archivos es del "+ ((total - ListaNoCoincidencias.size())/total)*100 + "%.";
+            try {
+                output = new BufferedWriter(new FileWriter(file));
+                output.write(res);
+                output.close();
+                }
+                catch(IOException e) {
+                    System.out.println("El fichero de hash no se ha podido generar correctamente.");
+                    
+                }
+            System.out.println(res);
+        }
     
 
 
