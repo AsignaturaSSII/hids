@@ -8,6 +8,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 import java.security.Key;
+import java.sql.*;
 
 
 
@@ -41,22 +42,25 @@ public class mainClass {
         System.out.println("**************************************************");
         String claveSimetrica = pedirPasswordSimetrica();
         System.out.println("**************************************************");
-
+        //System.out.println("Conexión con la base de datos...");
+        //Connection conexion = conexionBBDD("ko","kodw");
+        //System.out.println("**************************************************");
         //TODO: Pasar el path del fichero como la propiedad "file.hash.path" del archivo de configuración
-        String data_fichero_hash = lecturaFicheros("../fichero_cifrado.txt",true);
+        String data_fichero_hash = lecturaFicheros("../fichero_hashes.txt",true);
         System.out.println("Archivo de hash leido en claro: "+data_fichero_hash) ;
         System.out.println("Ciframos el archivo...");
         System.out.println("Creamos la clave de cifrado simétrico...");
         Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")),claveSimetrica);
         System.out.println("Clave de cifrado: " + keyGenerated);
-        System.out.println("Guardamos la clave de cifrado... ");
-        //Guardamos la clave de cifrado
-        guardarPassword(keyGenerated);
         //Conseguimos la clave desde el fichero:
         Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
         System.out.println("Clave de Cifrado: " + keyPassword);
-        byte[] data_fichero_hash_crypt = cifrarArchivoHash(data_fichero_hash,prop.getProperty("algorithm.simetric"),keyPassword);
+        String data_fichero_hash_crypt = cifrarArchivoHash(data_fichero_hash,prop.getProperty("algorithm.simetric"),keyPassword);
         System.out.println("Datos del fichero de hash cifrado: "+data_fichero_hash_crypt);
+        System.out.println("Guardamos la clave de cifrado... ");
+        System.out.println("Guardamos el contenido del fichero de hash de cifrado... ");
+        //Guardamos la clave de cifrado y el contenido del ficheor de hash cifrado
+        guardarPasswordAndCryptFile(keyGenerated,data_fichero_hash_crypt);
         System.out.println("Desciframos el archivo...");
         String data_fichero_hash_decrypt = descifrarArchivoHash(data_fichero_hash_crypt, prop.getProperty("algorithm.simetric"),keyPassword);
         System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
@@ -169,8 +173,6 @@ public class mainClass {
         return res;
     } 
     
-    
-    
     //Metodo que devuelve un map que relaciona key = nombrefichero con value= ruta absoluta, devuelve dicho map
     private static Map<String,String> getRutasAbsolutas() throws FileNotFoundException, IOException{
 		Map<String, String> map = new HashMap<String, String>();
@@ -196,7 +198,7 @@ public class mainClass {
     */
 
     //Este método lo vamos a usar para cifrar el archivo que contiene la lista de Hash 
-    private static byte[] cifrarArchivoHash(String data, String algorithm_simetric, Key keyGenerated){
+    private static String cifrarArchivoHash(String data, String algorithm_simetric, Key keyGenerated){
         //Creamos las variables necesarias:
         byte[] cipherText = null;
 
@@ -214,17 +216,19 @@ public class mainClass {
         }
         //String cryptValue = new Base64.encode(cipherText);
         //return cryptValue;
-        return cipherText;
+        return Base64.getEncoder().encodeToString(cipherText);
+        //return cipherText;
     }
     //Este método lo vamos a usar para cifrar el archivo que contiene la lista de Hash 
-    private static String descifrarArchivoHash(byte[] data_crypt, String algorithm_simetric, Key keyGenerated){
+    private static String descifrarArchivoHash(String data_crypt, String algorithm_simetric, Key keyGenerated){
         //Creamos las variables necesarias:
         String decryptTextRes = "";
         try{
+            byte[] data_crypt_byte = Base64.getDecoder().decode(data_crypt);
             Cipher cipherObj = Cipher.getInstance(algorithm_simetric);
             //Inicializamos el cifrador para descifrar pasándole la clave generada:
             cipherObj.init(Cipher.DECRYPT_MODE, keyGenerated);
-            byte[] decryptText = cipherObj.doFinal(data_crypt);
+            byte[] decryptText = cipherObj.doFinal(data_crypt_byte);
             // Texto obtenido, igual al original.
             decryptTextRes = new String(decryptText);
         }catch(Exception exception){
@@ -244,18 +248,20 @@ public class mainClass {
         try{
             //Abrimos el fichero y creamos el buffer para poder leerlo:
             file = new File(dirArchivo);
-            fileReader = new FileReader(file);
-            bufferedReader = new BufferedReader(fileReader);
+            if(file.exists()){
+                fileReader = new FileReader(file);
+                bufferedReader = new BufferedReader(fileReader);
 
-            //Leemos el fichero completamente:
-            String var_control_string;
-            while((var_control_string = bufferedReader.readLine()) != null){
-                System.out.println("Línea --> "+var_control_string);
-                //TODO: Pasarle la propiedad "keyword.crypt.fich.hash" del archivo config en vez de "asignaturaSSII"
-                if(salt){
-                    ret_data = ret_data + "asignaturaSSII" + var_control_string;
-                }else{
-                    ret_data = var_control_string;
+                //Leemos el fichero completamente:
+                String var_control_string;
+                while((var_control_string = bufferedReader.readLine()) != null){
+                    System.out.println("Línea --> "+var_control_string);
+                    //TODO: Pasarle la propiedad "keyword.crypt.fich.hash" del archivo config en vez de "asignaturaSSII"
+                    if(salt){
+                        ret_data = ret_data + "asignaturaSSII" + var_control_string;
+                    }else{
+                        ret_data = var_control_string;
+                    }
                 }
             }
 
@@ -310,22 +316,48 @@ public class mainClass {
         return res_ret;
     }
 
-    private static void conexionBBDD(String username, String password){
+    private static Connection conexionBBDD(String usernameParam, String passwordParam){
         //Conexion con la base de datos 
+        String driver = "com.mysql.jdbc.Driver";
+
+        String database = "hids_database";
+        String hostname = "localhost";
+        String port = "3307";
+        String url = "jdbc:mysql://" + hostname + ":" + port + "/" + database ;
+        String username = "user";
+        String password = "password";
+
+        Connection conn = null;
+
+        try {
+            //Class.forName(driver);
+            conn = DriverManager.getConnection(url, "root", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return conn;
+        
+        //return null;
     }
 
     private static void cerrarConexionBBDD(){
         //Cerramos la conexión con la base de datos
     }
 
-    private static void guardarPassword(Key password){
+    private static void guardarPasswordAndCryptFile(Key password, String archivo_cifrado){
         //En principio escribimos en un fichero:
         FileWriter fichero = null;
+        FileWriter fichero_crypt = null;
         try{
             fichero = new FileWriter("../fichero_password.txt");
             fichero.write(Base64.getEncoder().encodeToString(password.getEncoded()) +"\n");
+            
+            fichero_crypt = new FileWriter("../fichero_cifrado.txt");
+            fichero_crypt.write(archivo_cifrado);
 
             fichero.close();
+            fichero_crypt.close();
         }catch(Exception exception){
             exception.printStackTrace();
         }

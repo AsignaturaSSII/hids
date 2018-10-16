@@ -10,3 +10,6 @@
 #Archivos de configuración de Carlos:
 ..gitignore.swp
 .metadata
+
+#Archivos Mac:
+.DS_Store
