@@ -58,11 +58,6 @@ public class mainClass {
         System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
         configuracionTiempo(0, tareaParaRealizar());
         System.out.println("Terminamos...");
-
-
-
-        
-		
  
     } //Cierre del main
 
