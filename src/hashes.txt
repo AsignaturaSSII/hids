@@ -1,1 +1,1 @@
-C:\Users\carlo\Desktop\Seguridad\hids\src\fichero1.txt:4b47f96fcc7ba36a870597ac6a5a4bef6d7918364c1a1dbd74efb4cd0df98e0d-C:\Users\carlo\Desktop\Seguridad\hids\src\fichero2.txt:8fb8f0aaa6f4ff9eadc80d0fbdbcd3b794ef5508f6cca2a76a268d67aa5fcffa-
+C:\Users\carlo\Desktop\Seguridad\hids\src\fichero1.txt::4b47f96fcc7ba36a870597ac6a5a4bef6d7918364c1a1dbd74efb4cd0df98e0d-C:\Users\carlo\Desktop\Seguridad\hids\src\fichero2.txt::8fb8f0aaa6f4ff9eadc80d0fbdbcd3b794ef5508f6cca2a76a268d67aa5fcffa-

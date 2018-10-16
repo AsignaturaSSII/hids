@@ -50,6 +50,12 @@ public class mainClass {
         System.out.println(mapHashes.keySet());
         System.out.println(mapHashes.values());
         generarFicheroHash(prop);
+        //Comprobamos el metodo que lee el fichero de hashes
+        Map<String,String>mapHashesOriginales =  leerFichero(System.getProperty("user.dir"));
+        //comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");
+        System.out.println("Leidos-------------------------------------");
+        System.out.println(mapHashesOriginales.keySet());
+        System.out.println(mapHashesOriginales.values());
 
         /*
         String claveSimetrica = pedirPasswordSimetrica();
@@ -478,10 +484,11 @@ private static void generarFicheroHash(Properties p){
     
     for(String n:map.keySet()) {
         if(esPrimero) {
-            s=(n+":"+map.get(n)+"-");
+            //Usamos el doble :: para separar para que el formato en TODOS los sistemas sea el mismo
+            s=(n+"::"+map.get(n)+"-");
             esPrimero = false;
         }else {
-            s+=(n+":"+map.get(n)+"-");
+            s+=(n+"::"+map.get(n)+"-");
         }
     }
     try {
@@ -521,7 +528,7 @@ private static void generarFicheroHash(Properties p){
 		Map<String, String> map = new HashMap<String, String>();
 		
 		for(String s:parts) {
-			String[] aux = s.split(":");
+			String[] aux = s.split("::");
 			map.put(aux[0], aux[1]);
 		}
 		return map;
