@@ -40,6 +40,16 @@ public class mainClass {
         System.out.println("Configuración inicial cargada");
         System.out.println("**************************************************");
 
+        //Prueba de la creación de ficheros hash
+        Map<String,String>mapRutas = getRutasAbsolutas(prop);
+        //comprobamos que almacena los nombres y las rutas absolutas
+        System.out.println(mapRutas.keySet());
+        System.out.println(mapRutas.values());
+        //comprobamos el metodo getNombreHash, ruta con hash
+        Map<String,String>mapHashes= getNombreHash(prop);
+        System.out.println(mapHashes.keySet());
+        System.out.println(mapHashes.values());
+        generarFicheroHash(prop);
 
         /*
         String claveSimetrica = pedirPasswordSimetrica();
@@ -432,7 +442,7 @@ private static Map<String,String> getNombreHash(Properties p){
     //Obtenemos del archivo de configuración el algoritmo que vamos a usar para generar los hash
     MessageDigest sha256Digest = null;
     String hash = "";
-    String algoritmo = p.getProperty("algorythm");
+    String algoritmo = p.getProperty("algorithm");
     try {
         sha256Digest = MessageDigest.getInstance(algoritmo);
     }
@@ -447,7 +457,7 @@ private static Map<String,String> getNombreHash(Properties p){
         File f = new File(map.get(n));
         if(f.exists()){
             hash = getHashFichero(sha256Digest,f);
-            mapRes.put(n, hash);
+            mapRes.put(map.get(n), hash);
         }
     }
     return mapRes;
@@ -468,10 +478,10 @@ private static void generarFicheroHash(Properties p){
     
     for(String n:map.keySet()) {
         if(esPrimero) {
-            s=(n+":"+map.get(n)+"\n");
+            s=(n+":"+map.get(n)+"-");
             esPrimero = false;
         }else {
-            s+=(n+":"+map.get(n)+"\n");
+            s+=(n+":"+map.get(n)+"-");
         }
     }
     try {

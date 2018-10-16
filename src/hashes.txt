@@ -1,1 +1,1 @@
-fichero2:07740831e692e53a80e610c3363f3f3d6f8507b49e87f39abac8fc409f764448-fichero1:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-
+C:\Users\carlo\Desktop\Seguridad\hids\src\fichero1.txt:4b47f96fcc7ba36a870597ac6a5a4bef6d7918364c1a1dbd74efb4cd0df98e0d-C:\Users\carlo\Desktop\Seguridad\hids\src\fichero2.txt:8fb8f0aaa6f4ff9eadc80d0fbdbcd3b794ef5508f6cca2a76a268d67aa5fcffa-
