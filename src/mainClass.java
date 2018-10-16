@@ -15,7 +15,7 @@ import java.sql.*;
 
 public class mainClass {
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
-        System.out.println ("HIDS v1.0");
+        System.out.println("************************* HIDS v1.0 *************************");
         //TODO: Hay que quitar esta ruta.
         //File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
         File file = new File("../fichero_cifrado.txt");
@@ -49,7 +49,7 @@ public class mainClass {
         System.out.println("Archivo de hash leido en claro: "+data_fichero_hash) ;
         System.out.println("Ciframos el archivo...");
         System.out.println("Creamos la clave de cifrado simétrico...");
-        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")));
+        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")),claveSimetrica);
         System.out.println("Clave de cifrado: " + keyGenerated);
         //Conseguimos la clave desde el fichero:
         Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
@@ -66,10 +66,6 @@ public class mainClass {
         configuracionTiempo(0, tareaParaRealizar());
         System.out.println("Terminamos...");
 
-
-
-        
-		
  
     } //Cierre del main
 
@@ -306,7 +302,7 @@ public class mainClass {
         return ret_data;
     } 
 
-    private static Key generadorClavesSimetricas(String alg, Integer longitud){
+    private static Key generadorClavesSimetricas(String alg, Integer longitud, String passwordSimetrica){
         Key key = null;
         try{
             // Generamos una clave de 128 bits adecuada para AES
@@ -316,7 +312,7 @@ public class mainClass {
             
             // Alternativamente, una clave que queramos que tenga al menos 16 bytes
             // y nos quedamos con los bytes 0 a 15
-            key = new SecretKeySpec("8m[zWQq<!me_8kMg".getBytes(),  0, 16, alg);
+            key = new SecretKeySpec(passwordSimetrica.getBytes(),  0, 16, alg);
             
         }catch(Exception exception){
             exception.printStackTrace();
@@ -397,11 +393,6 @@ public class mainClass {
         return retKey;
     }
 
-
-
-
-
-
     //Metodo que genera un map,relaciona nombre del fichero con el hash de éste
 private static Map<String,String> getNombreHash(Properties p){
 	
@@ -438,7 +429,7 @@ private static void generarFicheroHash(Properties p){
     File file = new File("hashes.txt");//Hay que seleccionar una ruta segura
     Map<String, String> map = getNombreHash(p);
     String s = "";
-    Boolean esPrimero = true;g
+    Boolean esPrimero = true;
     
     for(String n:map.keySet()) {
         if(esPrimero) {
@@ -459,11 +450,6 @@ private static void generarFicheroHash(Properties p){
     }
     
 }
-
-
-
-
-
         /*
     Este codigo es para testear el metodo de arriba , funciona , si quieres testearlo deberias modificar la ruta de abajo(File turuta) a la correcta
             //Create checksum for this file
@@ -496,17 +482,7 @@ private static void generarFicheroHash(Properties p){
 			System.out.println("El archivo hash Cifrado no se ha podido generar");
 		}
 		
-}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+    }
 	
 	//Metodo que lee el fichero de los hash(RAW) y saca nombreFichero:hash
 	private static Map<String,String> leerFichero(String hashes){
@@ -533,8 +509,23 @@ private static void generarFicheroHash(Properties p){
 			}
 			//queda testearlo bien
 		}
-		
-		
-	
+    }
+    private static String pedirPasswordSimetrica(){		
+        String res_ret = new String();		
+        System.out.println("Introduzca una clave de 16 bits para el cifrado simétrico: ");		
+        Scanner inputText = new Scanner(System.in);	
+        res_ret = inputText.next();		 		
+        if(res_ret.length() != 16){	
+                System.out.println("[ERROR] La clave introducida no es de 16 bits.");		    
+                System.out.println("Introduzca una clave de 16 bits: ");		   
+                res_ret = inputText.next();		  
+                if(res_ret.length() != 16){		    
+                    System.out.println("[ERROR] La clave introducida no es de 16 bits.");		     
+                    System.out.println("Ha excedido el número de intentos.");		     
+                    System.exit(0);		 
+                }		       
+            }
+            return res_ret;		
+        }
 
 } //Cierre de la clase
