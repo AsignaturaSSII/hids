@@ -492,24 +492,35 @@ private static void generarFicheroHash(Properties p){
 		Map<String, String> map = new HashMap<String, String>();
 		
 		for(String s:parts) {
-			System.out.println("strings troceados :"+s);
-			String[] aux = hashesLeido.split(":");
+			String[] aux = s.split(":");
 			map.put(aux[0], aux[1]);
 		}
 		return map;
 	}
     
     //metodo comparar hashes
-	private static void comparaHashes(Map<String,String>nuevosHash,Properties prop){
-		Map<String, String> originalHash = getNombreHash(prop);
-		List<String>ListaCoincidencias = new ArrayList<String>();
+	private static void comparaHashes(Map<String,String>nuevosHash,Properties prop,String rutaHash){
+		
+		Map<String, String> originalHash = leerFichero(rutaHash);
+		List<String>ListaNoCoincidencias = new ArrayList<String>();
+		Integer total = originalHash.keySet().size();
+		String res = ""; 
 		for(String s:originalHash.keySet()){
+			
 			if(nuevosHash.get(s).equals(originalHash.get(s))) {
-				System.out.println("El archivo "+s+"coincide");
+				//System.out.println("El archivo "+s+"coincide");
+				res = res + "El archivo "+s+"coincide"+"\n";
+			}else {
+				ListaNoCoincidencias.add(s);
+				//System.out.println("El archivo "+s+"no coincide.");
+				res = res + "El archivo "+s+"no coincide"+"\n";
 			}
-			//queda testearlo bien
 		}
+		System.out.println(res);
     }
+    
+
+
     private static String pedirPasswordSimetrica(){		
         String res_ret = new String();		
         System.out.println("Introduzca una clave de 16 bits para el cifrado simétrico: ");		
