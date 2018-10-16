@@ -1,0 +1,6 @@
+CREATE TABLE `HIDS` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `CLAVE` varchar(45) NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `CLAVE_unique` (`CLAVE`)
+)
