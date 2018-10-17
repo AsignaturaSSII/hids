@@ -51,6 +51,12 @@ public class mainClass {
         System.out.println(mapLeido.keySet());
         System.out.println(mapLeido.values());
 
+        comparaHashesString(getNombreHash(prop),prop,hashesConSalt);
+        /*prueba de errores
+        File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
+        modificarFichero("Fichero de prueba para hash2222",fichero1);//para testear cambiar el primer parametro
+        comparaHashesString(getNombreHash(prop),prop,hashesConSalt);
+        /*
         /*
         //Pruebas Realizadas en windows
         //Prueba de la creación de ficheros hash
@@ -611,6 +617,46 @@ private static void generarFicheroHash(Properties p){
                 System.out.println(res);
                 }
         }
+        private static void comparaHashesString(Map<String,String>nuevosHash,Properties prop,String stringHashesConSalt){
+		
+            Map<String, String> originalHash = leerHashConSalt(stringHashesConSalt,prop);
+            List<String>ListaNoCoincidencias = new ArrayList<String>();
+            Integer total = originalHash.keySet().size();
+            String res = ""; 
+            for(String s:originalHash.keySet()){
+                if(nuevosHash.get(s)==null){
+                    res = res + "El archivo "+s+" ha sido eliminado"+"\n";
+                    ListaNoCoincidencias.add(s);
+                }else{
+                     if(nuevosHash.get(s).equals(originalHash.get(s))) {
+                   
+                         res = res + "El archivo "+s+" coincide"+"\n";
+                    }else {
+                        ListaNoCoincidencias.add(s);
+                   
+                         res = res + "El archivo "+s+" no coincide"+"\n";
+                    }
+                }
+            }
+            BufferedWriter output = null;
+            File file = new File("Integridad.txt");//Hay que seleccionar una ruta segura
+            if(file.exists()){
+                float dif = (float)(total - ListaNoCoincidencias.size());
+                float div = dif/total;
+                res = res + " La integridad de los archivos es del "+ (div*100 + "%.");
+                res = res + "Los ficheros que no coinciden son: "+ListaNoCoincidencias.toString();
+                try {
+                    output = new BufferedWriter(new FileWriter(file));
+                    output.write(res);
+                    output.close();
+                    }
+                    catch(IOException e) {
+                        System.out.println("El fichero de hash no se ha podido generar correctamente.");
+                        
+                    }
+                System.out.println(res);
+                }
+        }
     
 
 
@@ -712,11 +758,11 @@ private static void generarFicheroHash(Properties p){
     }catch(IOException e){
     }
    }
-
-   private static Map<String,String> leerHashConSalt(String hashesString,Properties p){
+   //Metodo que introduce en un map a partir de un string de los hashes con salt
+   private static Map<String,String> leerHashConSalt(String hashesStringConSalt,Properties p){
     //Obtenemos el valor del archivo que almacena los hashes
     String salt = p.getProperty("keyword.crypt.fich.hash");
-    String[] parts = hashesString.split(salt);
+    String[] parts = hashesStringConSalt.split(salt);
     Map<String, String> map = new HashMap<String, String>();
     
     for(String s:parts) {
