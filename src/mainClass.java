@@ -145,7 +145,17 @@ public class mainClass {
     private static Properties cargaConfiguracion(String url){
         Properties prop = new Properties();
         InputStream is = null;
-		
+        /*
+		prop.setProperty("algorithm", "SHA-256");
+		prop.setProperty("task.hours", "24");
+		prop.setProperty("algorithm.simetric", "AES");
+		prop.setProperty("algorithm.simetric.tam", "256");
+		prop.setProperty("algorithm.simetric.password", "JE3mdmrSRv3d7Gnb");
+		prop.setProperty("keyword.crypt.fich.hash", "asignaturaSSII");
+		prop.setProperty("file.hash.path", "fichero_cifrado.txt");
+		prop.setProperty("filelist", "fichero1.txt,fichero2.txt");
+        prop.setProperty("filelist.linux", "shadow,profile,protocols,hostname,deluser.conf,passwd");
+        */
 		try {
 			is = new FileInputStream(url);
 			prop.load(is);
@@ -255,7 +265,7 @@ public class mainClass {
                    
                }
         }else{
-            res1 = p.getProperty("filelist.linux").split(",");
+            res1 = p.getProperty("filelist").split(",");
         
 		
 		    for(int i=0;i<res1.length;i++) {
@@ -615,7 +625,40 @@ private static void generarFicheroHash(Properties p){
         //Map<String, String> ficheros = getRutasAbsolutas(p);
         //función de obtención de hash
         //Map<String, String> nombreHash = getNombreHash(p);
-        File file = new File("../fichero_cifrado.txt");
+
+        ////
+
+        
+//TODO: AQUI ES CARLOS
+
+
+        //Pruebas Realizadas en windows
+        //Prueba de la creación de ficheros hash
+        Map<String,String>mapRutas = getRutasAbsolutas(p);
+        //comprobamos que almacena los nombres y las rutas absolutas
+        System.out.println(mapRutas.keySet());
+        System.out.println(mapRutas.values());
+        //comprobamos el metodo getNombreHash, ruta con hash
+        Map<String,String>mapHashes= getNombreHash(p);
+        System.out.println(mapHashes.keySet());
+        System.out.println(mapHashes.values());
+        generarFicheroHash(p);
+        //Comprobamos el metodo que lee el fichero de hashes
+        Map<String,String>mapHashesOriginales =  leerFichero(System.getProperty("user.dir"));
+        System.out.println("Leidos-------------------------------------");
+        System.out.println(mapHashesOriginales.keySet());
+        System.out.println(mapHashesOriginales.values());
+        comparaHashes(getNombreHash(p),p,System.getProperty("user.dir")+File.separator+"\\hashes.txt");//asi solo en windows
+        //prueba para forzar error
+        File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
+        //modificarFichero("Fichero de prueba para hash",fichero1);//para testear cambiar el primer parametro
+        //fichero1.delete();//Prueba de eliminado de ficheros 
+        comparaHashes(getNombreHash(p),p,System.getProperty("user.dir")+File.separator+"\\hashes.txt");
+        
+        return mapHashesOriginales.toString();
+/////////////////////
+
+        /* File file = new File("../fichero_cifrado.txt");
         if(file.exists()){
             System.out.println("Desciframos el archivo...");
             String data_fichero_hash_decrypt = descifrarArchivoHash(lecturaFicheros("../fichero_cifrado.txt", false), p.getProperty("algorithm.simetric"),clave);
@@ -625,7 +668,7 @@ private static void generarFicheroHash(Properties p){
 
         //De momento obtenemos los hash desde aquí:
         String data_fichero_hash = lecturaFicheros("../fichero_hashes.txt",true);
-        return data_fichero_hash;
+        return data_fichero_hash; */
     }
 
     private static Key obtencionClave(Properties p){
@@ -641,7 +684,7 @@ private static void generarFicheroHash(Properties p){
             Key keyGenerated = generadorClavesSimetricas(p.getProperty("algorithm.simetric"),Integer.parseInt(p.getProperty("algorithm.simetric.tam")),claveSimetrica);
             System.out.println("Clave de cifrado: " + keyGenerated);
             res_ret = keyGenerated;
-            guardarPasswordAndCryptFile(keyGenerated, "fichero_password.txt");
+            guardarPasswordAndCryptFile(keyGenerated, "../fichero_password.txt");
         }
         return res_ret; 
     }
