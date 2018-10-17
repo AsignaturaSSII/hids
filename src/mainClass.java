@@ -19,7 +19,6 @@ public class mainClass {
         //TODO: Hay que quitar esta ruta.
         //File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
         File file = new File("../fichero_cifrado.txt");
-        
         //Definimos el algoritmo de Hashs
 		//TODO: habria que modificar el atributo aqui a un string , ya que lo lee del archivo .config
 		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
@@ -46,7 +45,11 @@ public class mainClass {
         //comprobacion metodo partHashingCode
         System.out.println("-----------------El string de hashes con salt :---------------------------");
         System.out.println(hashesConSalt);
-        
+        Map<String,String>mapLeido = leerHashConSalt(hashesConSalt,prop);
+        //comprobamos que lea e introduzca bien en el mapa a partir del String cde hashes con salt
+        System.out.println("-----------------El string de hashes con salt :---------------------------");
+        System.out.println(mapLeido.keySet());
+        System.out.println(mapLeido.values());
 
         /*
         //Pruebas Realizadas en windows
@@ -643,10 +646,10 @@ private static void generarFicheroHash(Properties p){
             for(String n:map.keySet()) {
                 if(esPrimero) {
                     //Usamos el doble :: para separar para que el formato en TODOS los sistemas sea el mismo
-                    res=(n+"::"+map.get(n)+"-"+salt+"-");
+                    res=(n+"::"+map.get(n)+"-"+salt);
                     esPrimero = false;
                 }else {
-                    res+=(n+"::"+map.get(n)+"-"+salt+"-");
+                    res+=(n+"::"+map.get(n)+"-"+salt);
                 }
             }
 
@@ -709,6 +712,21 @@ private static void generarFicheroHash(Properties p){
     }catch(IOException e){
     }
    }
+
+   private static Map<String,String> leerHashConSalt(String hashesString,Properties p){
+    //Obtenemos el valor del archivo que almacena los hashes
+    String salt = p.getProperty("keyword.crypt.fich.hash");
+    String[] parts = hashesString.split(salt);
+    Map<String, String> map = new HashMap<String, String>();
+    
+    for(String s:parts) {
+        System.out.println("Muestra cada array");
+        System.out.println(s);
+        String[] aux = s.split("::");
+        map.put(aux[0], aux[1].split("-")[0]);
+    }
+    return map;
+}
 
 
 
