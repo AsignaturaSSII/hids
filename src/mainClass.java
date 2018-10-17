@@ -38,7 +38,7 @@ public class mainClass {
         System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
         System.out.println("Configuración inicial cargada");
         System.out.println("**************************************************");
-
+ /*
         Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
         System.out.println(partHashingCode(prop,keyPassword));
         String hashesConSalt = partHashingCode(prop,keyPassword);
@@ -51,7 +51,7 @@ public class mainClass {
         System.out.println(mapLeido.keySet());
         System.out.println(mapLeido.values());
 
-        comparaHashesString(getNombreHash(prop),prop,hashesConSalt);
+        comparaHashesString(getNombreHash(prop),prop,hashesConSalt); */
         /*prueba de errores
         File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
         modificarFichero("Fichero de prueba para hash2222",fichero1);//para testear cambiar el primer parametro
@@ -110,7 +110,6 @@ public class mainClass {
         System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
         */
         
-        
         configuracionTiempo(0, tareaParaRealizar(prop));
         System.out.println("Terminamos...");
 
@@ -132,6 +131,7 @@ public class mainClass {
             @Override
             public void run()
             {
+                int cont = 0;
                 System.out.println("Realizando tarea...");
                 //Aquí debe estar lo que viene siendo las tareas que se realizan cada 24 horas.
 
@@ -140,16 +140,29 @@ public class mainClass {
                 //Obtención de Hash de ficheros en SHA-256 e introducirlo en el fichero de Hash
                 String hashes = partHashingCode(p, keyGen);
                 System.out.println("Archivo de hash leido en claro: "+hashes);
+                
+                if(cont == 0){
+                    cont = 1;
+                    //Ciframos el hash de los ficheros con la clave.
+                    String data_fichero_hash_crypt = partCryptSimetric(p,hashes,keyGen);
+                    //Guardamos la clave y el cifrado:
+                    guardarPasswordAndCryptFile(keyGen, data_fichero_hash_crypt);
+                }
 
-            
+                    String hashes_decrypt_file = descifrarArchivoHash(lecturaFicheros("../fichero_cifrado.txt", false), p.getProperty("algorithm.simetric"),keyGen);  
+                    System.out.println("hashes_decrypt_file ---> "+hashes_decrypt_file);
+    
+                    comparaHashesString(getNombreHash(p), p, hashes_decrypt_file);
+                    
+
                 //Cifrado del fichero de Hash con cifrado simétrico (Se supone que el código no lo vería el atacante por tanto puede estar aquí la pass)
                 
+
+
                 //Ciframos el hash de los ficheros con la clave.
                 String data_fichero_hash_crypt = partCryptSimetric(p,hashes,keyGen);
                 //Guardamos la clave y el cifrado:
                 guardarPasswordAndCryptFile(keyGen, data_fichero_hash_crypt);
-
-
                 //Obtención de PID del proceso del programa y pasarlo a algún archivo de configuración donde lo recogería un programa en bash para la comprobación y alarma si se para el HIDS
 
                 //Ofuscación de las rutas
@@ -267,7 +280,7 @@ public class mainClass {
         //String res1[] =  p.getProperty("filelist").split(",");
         String res1[];
         //Comprobamos
-        if(getOpSystem().equals("windows")){
+        //if(getOpSystem().equals("windows")){
             res1 = p.getProperty("filelist").split(",");
 
             for(int i=0;i<res1.length;i++) {
@@ -281,7 +294,7 @@ public class mainClass {
                     }
                    
                }
-        }else{
+        /*}else{
             res1 = p.getProperty("filelist").split(",");
         
 		
@@ -296,7 +309,7 @@ public class mainClass {
 				    map.put(res1[i],getPathFichero(new File("/"), res1[i]));
 			    }
             }
-        }
+        }*/
 		return map;
 	}
    
@@ -363,7 +376,7 @@ public class mainClass {
                 bufferedReader = new BufferedReader(fileReader);
 
                 //Leemos el fichero completamente:
-                String var_control_string;
+                String var_control_string = "";
                 while((var_control_string = bufferedReader.readLine()) != null){
                     System.out.println("Línea --> "+var_control_string);
                     //TODO: Pasarle la propiedad "keyword.crypt.fich.hash" del archivo config en vez de "asignaturaSSII"
@@ -618,7 +631,7 @@ private static void generarFicheroHash(Properties p){
                 }
         }
         private static void comparaHashesString(Map<String,String>nuevosHash,Properties prop,String stringHashesConSalt){
-		
+
             Map<String, String> originalHash = leerHashConSalt(stringHashesConSalt,prop);
             List<String>ListaNoCoincidencias = new ArrayList<String>();
             Integer total = originalHash.keySet().size();
@@ -639,7 +652,7 @@ private static void generarFicheroHash(Properties p){
                 }
             }
             BufferedWriter output = null;
-            File file = new File("Integridad.txt");//Hay que seleccionar una ruta segura
+            File file = new File("Intregidad.txt");//Hay que seleccionar una ruta segura
             if(file.exists()){
                 float dif = (float)(total - ListaNoCoincidencias.size());
                 float div = dif/total;
@@ -709,7 +722,7 @@ private static void generarFicheroHash(Properties p){
         /* File file = new File("../fichero_cifrado.txt");
         if(file.exists()){
             System.out.println("Desciframos el archivo...");
-            String data_fichero_hash_decrypt = descifrarArchivoHash(lecturaFicheros("../fichero_cifrado.txt", false), p.getProperty("algorithm.simetric"),clave);
+            String data_fichero_hash_decrypt = descifrarArchivoHashdescifrarArchivoHash(lecturaFicheros("../fichero_cifrado.txt", false), p.getProperty("algorithm.simetric"),clave);
             System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
             
         }
