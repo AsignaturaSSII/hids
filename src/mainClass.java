@@ -16,19 +16,7 @@ import java.sql.*;
 public class mainClass {
     public static void main (String [ ] args) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
         System.out.println("************************* HIDS v1.0 *************************");
-        //TODO: Hay que quitar esta ruta.
-        //File file = new File("/home/carlos/Escritorio/Seguridad/pruebas/prueba/src/principal/fichero");
-        File file = new File("../fichero_cifrado.txt");
-        //Definimos el algoritmo de Hashs
-		//TODO: habria que modificar el atributo aqui a un string , ya que lo lee del archivo .config
-		MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
-
-		//Generar hash
-		String hashArchivo = getHashFichero(sha256Digest, file);
-
-		//mostrar hash
-        System.out.println("Hash del archivo --> "+hashArchivo);
-        
+       
         //Detectamos el Sistema Operativo y lo pasamos a una variable para tenerlo en cuenta:
         String sistemOp = getOpSystem();
 
@@ -38,79 +26,9 @@ public class mainClass {
         System.out.println("Periodo: "+prop.getProperty("task.hours") + " Horas");
         System.out.println("Configuración inicial cargada");
         System.out.println("**************************************************");
- /*
-        Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
-        System.out.println(partHashingCode(prop,keyPassword));
-        String hashesConSalt = partHashingCode(prop,keyPassword);
-        //comprobacion metodo partHashingCode
-        System.out.println("-----------------El string de hashes con salt :---------------------------");
-        System.out.println(hashesConSalt);
-        Map<String,String>mapLeido = leerHashConSalt(hashesConSalt,prop);
-        //comprobamos que lea e introduzca bien en el mapa a partir del String cde hashes con salt
-        System.out.println("-----------------El string de hashes con salt :---------------------------");
-        System.out.println(mapLeido.keySet());
-        System.out.println(mapLeido.values());
-
-        comparaHashesString(getNombreHash(prop),prop,hashesConSalt); */
-        /*prueba de errores
-        File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
-        modificarFichero("Fichero de prueba para hash2222",fichero1);//para testear cambiar el primer parametro
-        comparaHashesString(getNombreHash(prop),prop,hashesConSalt);
-        /*
-        /*
-        //Pruebas Realizadas en windows
-        //Prueba de la creación de ficheros hash
-        Map<String,String>mapRutas = getRutasAbsolutas(prop);
-        //comprobamos que almacena los nombres y las rutas absolutas
-        System.out.println(mapRutas.keySet());
-        System.out.println(mapRutas.values());
-        //comprobamos el metodo getNombreHash, ruta con hash
-        Map<String,String>mapHashes= getNombreHash(prop);
-        System.out.println(mapHashes.keySet());
-        System.out.println(mapHashes.values());
-        generarFicheroHash(prop);
-        //Comprobamos el metodo que lee el fichero de hashes
-        Map<String,String>mapHashesOriginales =  leerFichero(System.getProperty("user.dir"));
-        System.out.println("Leidos-------------------------------------");
-        System.out.println(mapHashesOriginales.keySet());
-        System.out.println(mapHashesOriginales.values());
-        comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");//asi solo en windows
-        //prueba para forzar error
-        File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
-        //modificarFichero("Fichero de prueba para hash",fichero1);//para testear cambiar el primer parametro
-        //fichero1.delete();//Prueba de eliminado de ficheros 
-        comparaHashes(getNombreHash(prop),prop,System.getProperty("user.dir")+File.separator+"\\hashes.txt");
-        /*
-
-
-        /*
-        String claveSimetrica = pedirPasswordSimetrica();
-        System.out.println("**************************************************");
-        //System.out.println("Conexión con la base de datos...");
-        //Connection conexion = conexionBBDD("ko","kodw");
-        //System.out.println("**************************************************");
-        //TODO: Pasar el path del fichero como la propiedad "file.hash.path" del archivo de configuración
-        String data_fichero_hash = lecturaFicheros("../fichero_hashes.txt",true);
-        System.out.println("Archivo de hash leido en claro: "+data_fichero_hash);
-        System.out.println("Ciframos el archivo...");
-        System.out.println("Creamos la clave de cifrado simétrico...");
-        Key keyGenerated = generadorClavesSimetricas(prop.getProperty("algorithm.simetric"),Integer.parseInt(prop.getProperty("algorithm.simetric.tam")),claveSimetrica);
-        System.out.println("Clave de cifrado: " + keyGenerated);
-        guardarPasswordAndCryptFile(keyGenerated, "fichero_password.txt");
-        //Conseguimos la clave desde el fichero:
-        Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
-        System.out.println("Clave de Cifrado: " + keyPassword);
-        String data_fichero_hash_crypt = cifrarArchivoHash(data_fichero_hash,prop.getProperty("algorithm.simetric"),keyPassword);
-        System.out.println("Datos del fichero de hash cifrado: "+data_fichero_hash_crypt);
-        System.out.println("Guardamos la clave de cifrado... ");
-        System.out.println("Guardamos el contenido del fichero de hash de cifrado... ");
-        guardarPasswordAndCryptFile(keyGenerated, data_fichero_hash_crypt);
-        System.out.println("Desciframos el archivo...");
-        String data_fichero_hash_decrypt = descifrarArchivoHash(lecturaFicheros("../fichero_cifrado.txt", false), prop.getProperty("algorithm.simetric"),keyPassword);
-        System.out.println("Datos del fichero de hash descifrado: "+data_fichero_hash_decrypt); 
-        */
+ 
         
-        configuracionTiempo(0, tareaParaRealizar(prop));
+        configuracionTiempo(Integer.parseInt(prop.getProperty("task.hours")), tareaParaRealizar(prop));
         System.out.println("Terminamos...");
 
  
@@ -118,8 +36,8 @@ public class mainClass {
 
     private static void configuracionTiempo(Integer periodoHoras, TimerTask task){
         //TODO: quitar el comentario para que use las horas que le pasemos como parámetro
-        //Integer formatoHoraMiliSegundos = periodoHoras * 86400000;
-        Integer formatoHoraMiliSegundos = 1000;
+        Integer formatoHoraMiliSegundos = periodoHoras * 86400000;
+        //Integer formatoHoraMiliSegundos = 1000;
         Timer timer;
         timer = new Timer();
 
@@ -711,13 +629,9 @@ private static void generarFicheroHash(Properties p){
                     res+=(n+"::"+map.get(n)+"-"+salt);
                 }
             }
-
-        
-//TODO: AQUI ES CARLOS
         //System.out.println("El string de hashes con salt :---------------------------");
         //System.out.println(res);
         return res;
-/////////////////////
 
         /* File file = new File("../fichero_cifrado.txt");
         if(file.exists()){
