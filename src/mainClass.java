@@ -40,6 +40,14 @@ public class mainClass {
         System.out.println("Configuración inicial cargada");
         System.out.println("**************************************************");
 
+        Key keyPassword = getPasswordSimetrica(prop.getProperty("algorithm.simetric"));
+        System.out.println(partHashingCode(prop,keyPassword));
+        String hashesConSalt = partHashingCode(prop,keyPassword);
+        //comprobacion metodo partHashingCode
+        System.out.println("-----------------El string de hashes con salt :---------------------------");
+        System.out.println(hashesConSalt);
+        
+
         /*
         //Pruebas Realizadas en windows
         //Prueba de la creación de ficheros hash
@@ -625,37 +633,28 @@ private static void generarFicheroHash(Properties p){
         //Map<String, String> ficheros = getRutasAbsolutas(p);
         //función de obtención de hash
         //Map<String, String> nombreHash = getNombreHash(p);
-
+        
+        String res = "";
         ////
+        String salt = p.getProperty("keyword.crypt.fich.hash");
+        Map<String, String> map = getNombreHash(p);
+            Boolean esPrimero = true;
+            
+            for(String n:map.keySet()) {
+                if(esPrimero) {
+                    //Usamos el doble :: para separar para que el formato en TODOS los sistemas sea el mismo
+                    res=(n+"::"+map.get(n)+"-"+salt+"-");
+                    esPrimero = false;
+                }else {
+                    res+=(n+"::"+map.get(n)+"-"+salt+"-");
+                }
+            }
 
         
 //TODO: AQUI ES CARLOS
-
-
-        //Pruebas Realizadas en windows
-        //Prueba de la creación de ficheros hash
-        Map<String,String>mapRutas = getRutasAbsolutas(p);
-        //comprobamos que almacena los nombres y las rutas absolutas
-        System.out.println(mapRutas.keySet());
-        System.out.println(mapRutas.values());
-        //comprobamos el metodo getNombreHash, ruta con hash
-        Map<String,String>mapHashes= getNombreHash(p);
-        System.out.println(mapHashes.keySet());
-        System.out.println(mapHashes.values());
-        generarFicheroHash(p);
-        //Comprobamos el metodo que lee el fichero de hashes
-        Map<String,String>mapHashesOriginales =  leerFichero(System.getProperty("user.dir"));
-        System.out.println("Leidos-------------------------------------");
-        System.out.println(mapHashesOriginales.keySet());
-        System.out.println(mapHashesOriginales.values());
-        comparaHashes(getNombreHash(p),p,System.getProperty("user.dir")+File.separator+"\\hashes.txt");//asi solo en windows
-        //prueba para forzar error
-        File fichero1 = new File(System.getProperty("user.dir")+File.separator+"fichero1.txt");
-        //modificarFichero("Fichero de prueba para hash",fichero1);//para testear cambiar el primer parametro
-        //fichero1.delete();//Prueba de eliminado de ficheros 
-        comparaHashes(getNombreHash(p),p,System.getProperty("user.dir")+File.separator+"\\hashes.txt");
-        
-        return mapHashesOriginales.toString();
+        //System.out.println("El string de hashes con salt :---------------------------");
+        //System.out.println(res);
+        return res;
 /////////////////////
 
         /* File file = new File("../fichero_cifrado.txt");
